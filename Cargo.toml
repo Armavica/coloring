@@ -1,10 +1,11 @@
 [package]
-authors = ["Virgile Andreani <virgile.andreani@anbuco.fr>"]
+authors = ["Virgile Andreani <armavica@ulminfo.fr>"]
 name = "coloring"
 version = "0.1.1"
+edition = "2018"
 
 [dependencies]
-rand = { version = "0.8", features = ["small_rng"] }
+rand = { version = "0.8.3", features = ["small_rng"] }
 
 [[bin]]
 name = "coloring"

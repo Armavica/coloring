@@ -1,5 +1,3 @@
-extern crate coloring;
-
 use std::env;
 use std::fs;
 use std::io;
@@ -18,11 +16,15 @@ pub enum GraphInput {
 }
 
 /// Reads the problem from the specified input.
+///
+/// Two integers should be on the first line: `n`, the number of nodes
+/// of the graph, and `e`, its number of edges.
+/// The following `e` lines each contain two integers: `a_i` and `b_i`
+/// and describe an edge between nodes `a_i` and `b_i`.
 pub fn read_graph(graph_input: &GraphInput) -> io::Result<Graph> {
-    let stdin = io::stdin();
     let mut buf_reader = match *graph_input {
         GraphInput::File(ref path) => Box::new(BufReader::new(File::open(path)?)),
-        GraphInput::StdIn => Box::new(BufReader::new(stdin)) as Box<BufRead>
+        GraphInput::StdIn => Box::new(BufReader::new(io::stdin())) as Box<dyn BufRead>
     };
     let mut input = String::new();
     buf_reader.read_line(&mut input)?;
@@ -92,7 +94,7 @@ fn main() {
                     if graph.check(&colors) {
                         println!("{}-coloring found.", k);
                         write_coloring(&colors, &graph_input).expect("io error");
-                        remove_file(k+1, &graph_input);
+                        remove_file(k+1, &graph_input).expect("io error");
                         break
                     } else {
                         unreachable!()
