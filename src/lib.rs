@@ -1,7 +1,8 @@
 extern crate rand;
 
-use rand::Rng;
-use rand::distributions::{IndependentSample, Range};
+use rand::{Rng, SeedableRng};
+use rand::rngs::SmallRng;
+use rand::distributions::{Distribution, Uniform};
 
 /// Structure to represent a Graph Coloring Problem.
 #[derive(Debug)]
@@ -35,11 +36,11 @@ impl Graph {
     /// 
     /// Upon success, returns the vector of colors.
     pub fn solve(&self, k: usize, t0: f64, nsteps: usize) -> Option<Vec<usize>> {
-        let mut rng = rand::weak_rng();
-        let rnd_color = Range::new(0, k);
+        let mut rng = SmallRng::from_entropy();
+        let rnd_color = Uniform::from(0 .. k);
         let mut colors = Vec::with_capacity(self.nodes.len());
         for _ in 0..self.nodes.len() {
-            colors.push(rnd_color.ind_sample(&mut rng));
+            colors.push(rnd_color.sample(&mut rng));
         }
         assert_eq!(colors.len(), self.nodes.len());
         let mut freqs: Vec<Vec<isize>> = vec![vec![0; k]; self.nodes.len()];
@@ -58,10 +59,10 @@ impl Graph {
             }
             // println!("T: {:.8}, nb_conflicts: {}", t, conflicts.len());
             for _ in 0..4*k*conflicts.len() {
-                let iv = rng.gen_range(0, conflicts.len());
+                let iv = rng.gen_range(0 .. conflicts.len());
                 let v = conflicts[iv];
                 let old_color = colors[v];
-                let new_color = rnd_color.ind_sample(&mut rng);
+                let new_color = rnd_color.sample(&mut rng);
                 let delta = freqs[v][new_color] - freqs[v][old_color];
                 if rng.gen::<f64>() < (-(delta as f64) / t).exp() {
                     colors[v] = new_color;
@@ -84,4 +85,3 @@ impl Graph {
         true
     }
 }
-
